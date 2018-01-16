@@ -1,0 +1,15 @@
+{
+  "name": "upslack-server",
+  "version": "0.0.1",
+  "description": "server side for upslack",
+  "main": "index.js",
+  "author": "ihfazhillah <mihfazhillah@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "apollo-server-express": "^1.3.2",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "graphql": "^0.12.3"
+  }
+}
