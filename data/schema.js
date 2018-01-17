@@ -1,17 +1,27 @@
 import { makeExecutableSchema } from "graphql-tools";
+import resolvers from "./resolvers";
 
 const typeDefs = `
-  type Query {
+type Query {
   hello : String
-}`;
+  allUsers: [User]
+}
 
-const resolvers = {
-  Query: {
-    hello(obj, args, context, info) {
-      return "Hello world";
-    }
-  }
-};
+type User {
+  username: String
+  password: String
+  email: String
+  id: ID
+  messages: [Message]
+}
+
+type Message {
+  author: User
+  text: String
+  id: ID
+}
+
+`;
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
