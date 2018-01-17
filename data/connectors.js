@@ -1,4 +1,6 @@
 import Sequelize from "sequelize";
+import casual from "casual";
+import _ from "lodash";
 
 require("dotenv").config();
 
@@ -26,17 +28,20 @@ const MessageModel = sequelize.define("message", {
 MessageModel.belongsTo(UserModel);
 UserModel.hasMany(MessageModel);
 
+casual.seed(3);
 sequelize.sync({ force: true }).then(() => {
-  return UserModel.create({
-    username: "ihfazhillah",
-    email: "mihfazhillah@gmail.com",
-    password: "mysupersecret"
-  }).then(user => {
-    user.createMessage({
-      text: "hello world"
-    });
-    user.createMessage({
-      text: "message kedua"
+  _.times(10, () => {
+    return UserModel.create({
+      username: casual.username,
+      email: casual.email,
+      password: casual.password
+    }).then(user => {
+      user.createMessage({
+        text: casual.sentences(10) + "from " + user.username
+      });
+      user.createMessage({
+        text: casual.sentences(10) + "from " + user.username
+      });
     });
   });
 });
