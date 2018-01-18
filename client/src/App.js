@@ -70,10 +70,11 @@ class App extends Component {
     super(props);
 
     this.state = {
-      authenticated: false
+      authenticated: true
     };
 
     this.isAuthenticated = this.isAuthenticated.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   isAuthenticated() {
@@ -87,6 +88,11 @@ class App extends Component {
     return false;
   }
 
+  logout() {
+    localStorage.removeItem("upslackToken");
+    this.isAuthenticated();
+  }
+
   render() {
     return (
       <div className="App">
@@ -97,7 +103,11 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        {this.state.authenticated ? <button>logout</button> : <LoginForm />}
+        {this.state.authenticated ? (
+          <button onClick={this.logout}>logout</button>
+        ) : (
+          <LoginForm />
+        )}
         <OpenData />
         <CloseData />
       </div>
