@@ -118,6 +118,30 @@ const resolvers = {
             .catch(error => Promise.reject(error));
         });
       });
+    },
+    verifyNewUser(_, { username, code }, ctx) {
+      return User.findOne({
+        where: {
+          username: username,
+          verification_code: code
+        }
+      }).then(user => {
+        if (!user) return Promise.reject("no user with that username and code");
+
+        user.verified = true;
+        user.save().then(() => user);
+        const token = jwt.sign(
+          {
+            id: user.id,
+            username: username
+          },
+          process.env.JWT_SECRET
+        );
+
+        user.token = token;
+        ctx.user = Promise.resolve(user);
+        return user;
+      });
     }
   },
 
