@@ -16,6 +16,7 @@ const resolvers = {
 
       return ctx.user.then(user => {
         if (!user) return Promise.reject("unauthorized");
+        if (!user.verified) return Promise.reject("unauthorized");
         return User.findAll();
       });
     }
