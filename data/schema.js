@@ -7,12 +7,17 @@ type Query {
   allUsers: [User]
 }
 
+type Mutation {
+  login(username: String!, password: String!): User
+}
+
 type User {
   username: String
   password: String
   email: String
   id: ID
   messages: [Message]
+  token: String
 }
 
 type Message {

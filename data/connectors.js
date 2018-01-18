@@ -1,5 +1,6 @@
 import Sequelize from "sequelize";
 import casual from "casual";
+import bcrypt from "bcrypt";
 import _ from "lodash";
 
 require("dotenv").config();
@@ -12,6 +13,7 @@ const sequelize = new Sequelize({
   dialect: "mysql",
   database: DATABASE_NAME,
   username: DATABASE_USERNAME,
+  logging: false,
   password: DATABASE_PASSWORD
 });
 
@@ -30,6 +32,11 @@ UserModel.hasMany(MessageModel);
 
 casual.seed(3);
 sequelize.sync({ force: true }).then(() => {
+  bcrypt
+    .hash("hello", 10)
+    .then(hash =>
+      UserModel.create({ username: "ihfazhillah", password: hash })
+    );
   _.times(10, () => {
     return UserModel.create({
       username: casual.username,
