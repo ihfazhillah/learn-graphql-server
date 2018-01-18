@@ -72,7 +72,7 @@ const resolvers = {
               host: "smtp.gmail.com",
               auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD
+                pass: process.env.EMAIL_PASS
               }
             })
           );
@@ -84,30 +84,37 @@ const resolvers = {
             text: `code : ${verification_code}, username: ${username}`
           };
 
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              return Promise.reject("email error");
-            }
-          });
+          const sendMail = mailOptions => {
+            return new Promise((resolve, reject) => {
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) return reject(error);
+                return resolve(info);
+              });
+            });
+          };
 
-          return User.create({
-            username: username,
-            password: hash,
-            email: email,
-            verification_code: verification_code
-          }).then(user => {
-            const token = jwt.sign(
-              {
-                id: user.id,
-                username: username
-              },
-              process.env.JWT_SECRET
-            );
+          return sendMail(mailOptions)
+            .then(info => {
+              return User.create({
+                username: username,
+                password: hash,
+                email: email,
+                verification_code: verification_code
+              }).then(user => {
+                const token = jwt.sign(
+                  {
+                    id: user.id,
+                    username: username
+                  },
+                  process.env.JWT_SECRET
+                );
 
-            user.token = token;
-            ctx.user = Promise.resolve(user);
-            return user;
-          });
+                user.token = token;
+                ctx.user = Promise.resolve(user);
+                return user;
+              });
+            })
+            .catch(error => Promise.reject(error));
         });
       });
     }
