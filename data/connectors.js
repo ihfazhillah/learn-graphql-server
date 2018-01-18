@@ -20,7 +20,9 @@ const sequelize = new Sequelize({
 const UserModel = sequelize.define("user", {
   username: { type: Sequelize.STRING },
   email: { type: Sequelize.STRING },
-  password: { type: Sequelize.STRING }
+  password: { type: Sequelize.STRING },
+  verification_code: { type: Sequelize.STRING },
+  verified: { type: Sequelize.BOOLEAN, defaultValue: false }
 });
 
 const MessageModel = sequelize.define("message", {

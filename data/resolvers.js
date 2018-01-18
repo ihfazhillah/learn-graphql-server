@@ -1,6 +1,8 @@
 import { User, Message } from "./connectors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
+import smtpTransport from "nodemailer-smtp-transport";
 
 const resolvers = {
   Query: {
@@ -45,6 +47,68 @@ const resolvers = {
         } else {
           return Promise.reject("User not found");
         }
+      });
+    },
+    register(_, { username, password, email }, ctx) {
+      return User.findOne({
+        where: { $or: [{ username: username }, { email: email }] }
+      }).then(user => {
+        if (user) {
+          return Promise.reject("username or email has found found");
+        }
+
+        /**
+         * create password
+         * create verification code, flag not verified
+         * send verification code through email
+         * return user
+         */
+
+        return bcrypt.hash(password, 10).then(hash => {
+          const verification_code = (Math.random() * 1e32).toString(36);
+          const transporter = nodemailer.createTransport(
+            smtpTransport({
+              service: "gmail",
+              host: "smtp.gmail.com",
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+              }
+            })
+          );
+
+          const mailOptions = {
+            from: "mihfazhillah@gmail.com",
+            to: email,
+            subject: "new account, verify",
+            text: `code : ${verification_code}, username: ${username}`
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              return Promise.reject("email error");
+            }
+          });
+
+          return User.create({
+            username: username,
+            password: hash,
+            email: email,
+            verification_code: verification_code
+          }).then(user => {
+            const token = jwt.sign(
+              {
+                id: user.id,
+                username: username
+              },
+              process.env.JWT_SECRET
+            );
+
+            user.token = token;
+            ctx.user = Promise.resolve(user);
+            return user;
+          });
+        });
       });
     }
   },
