@@ -32,6 +32,7 @@ const MessageModel = sequelize.define("message", {
 MessageModel.belongsTo(UserModel);
 UserModel.hasMany(MessageModel);
 
+/** comment it so when script restart, not create a new one
 casual.seed(3);
 sequelize.sync({ force: true }).then(() => {
   bcrypt
@@ -54,7 +55,7 @@ sequelize.sync({ force: true }).then(() => {
     });
   });
 });
-
+*/
 const User = sequelize.models.user;
 const Message = sequelize.models.message;
 
