@@ -66,6 +66,27 @@ const CloseData = graphql(
 )(DataFromGql);
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      authenticated: false
+    };
+
+    this.isAuthenticated = this.isAuthenticated.bind(this);
+  }
+
+  isAuthenticated() {
+    const token = localStorage.getItem("upslackToken");
+
+    if (token) {
+      this.setState({ authenticated: true });
+      return true;
+    }
+    this.setState({ authenticated: false });
+    return false;
+  }
+
   render() {
     return (
       <div className="App">
@@ -76,7 +97,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <LoginForm />
+        {this.state.authenticated ? <button>logout</button> : <LoginForm />}
         <OpenData />
         <CloseData />
       </div>
