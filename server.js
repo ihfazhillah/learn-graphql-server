@@ -7,7 +7,7 @@ import { User } from "./data/connectors";
 
 import schema from "./data/schema";
 
-const GRAPHQL_PORT = 3000;
+const GRAPHQL_PORT = 3001;
 
 const server = express();
 
