@@ -125,7 +125,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      authenticated: false
+      authenticated: localStorage.getItem("upslackToken")
     };
 
     this.isAuthenticated = this.isAuthenticated.bind(this);

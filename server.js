@@ -20,7 +20,7 @@ server.use(
     context: {
       user: req.user
         ? User.findOne({ where: { id: req.user.id } })
-        : Promise.resolve(null)
+        : Promise.resolve({ message: "data not found" })
     }
   }))
 );
