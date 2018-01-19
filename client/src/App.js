@@ -3,6 +3,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import gql from "graphql-tag";
 import { graphql } from "react-apollo";
+import Auth from "./auth";
 
 class LoginForm extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class LoginForm extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onUsernameChange = this.onUsernameChange.bind(this);
     this.onPasswordChange = this.onPasswordChange.bind(this);
+    this.auth = new Auth();
   }
 
   onSubmit(e) {
@@ -56,7 +58,9 @@ class LoginForm extends Component {
           />
           <input type="submit" value="login" />
         </form>
-        <button id="social">Social Login</button>
+        <button onClick={() => this.auth.login()} id="social">
+          Social Login
+        </button>
       </div>
     );
   }
