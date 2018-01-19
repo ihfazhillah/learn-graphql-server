@@ -29,8 +29,14 @@ const MessageModel = sequelize.define("message", {
   text: { type: Sequelize.STRING }
 });
 
+const SocialModel = sequelize.define("social", {
+  sub: { type: Sequelize.STRING }
+});
+
 MessageModel.belongsTo(UserModel);
+SocialModel.belongsTo(UserModel);
 UserModel.hasMany(MessageModel);
+UserModel.hasMany(SocialModel);
 
 /** comment it so when script restart, not create a new one
 casual.seed(3);
@@ -58,5 +64,6 @@ sequelize.sync({ force: true }).then(() => {
 */
 const User = sequelize.models.user;
 const Message = sequelize.models.message;
+const Social = sequelize.models.social;
 
-export { User, Message };
+export { User, Message, Social };

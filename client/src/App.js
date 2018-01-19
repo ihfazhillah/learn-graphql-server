@@ -5,6 +5,8 @@ import gql from "graphql-tag";
 import { graphql } from "react-apollo";
 import Auth from "./auth";
 
+const auth = new Auth();
+
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -17,7 +19,6 @@ class LoginForm extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onUsernameChange = this.onUsernameChange.bind(this);
     this.onPasswordChange = this.onPasswordChange.bind(this);
-    this.auth = new Auth();
   }
 
   onSubmit(e) {
@@ -58,7 +59,7 @@ class LoginForm extends Component {
           />
           <input type="submit" value="login" />
         </form>
-        <button onClick={() => this.auth.login()} id="social">
+        <button onClick={() => auth.login()} id="social">
           Social Login
         </button>
       </div>
@@ -150,6 +151,12 @@ class App extends Component {
   logout() {
     localStorage.removeItem("upslackToken");
     this.isAuthenticated();
+  }
+
+  componentWillMount() {
+    if (/access_token|id_token|expires_in/.test(window.location.href)) {
+      auth.handleAuthentication();
+    }
   }
 
   render() {

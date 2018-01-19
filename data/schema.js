@@ -11,6 +11,7 @@ type Mutation {
   login(username: String!, password: String!): User
   register(username: String!, password: String!, email: String!): User
   verifyNewUser(username: String!, code: String!): User
+  loginWithAuth(id_token: String!): User
 }
 
 type User {
@@ -18,14 +19,20 @@ type User {
   password: String
   email: String
   id: ID
-  messages: [Message]
   token: String
+  messages: [Message]
+  social: [Social]
 }
 
 type Message {
   author: User
   text: String
   id: ID
+}
+
+type Social {
+  user: User
+  sub: String
 }
 
 `;
