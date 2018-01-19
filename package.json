@@ -26,7 +26,8 @@
     "nodemailer": "^4.4.1",
     "nodemailer-smtp-transport": "^2.7.4",
     "nodemon": "^1.14.11",
-    "sequelize": "^4.31.2"
+    "sequelize": "^4.31.2",
+    "sequelize-cli": "^3.2.0"
   },
   "babel": {
     "presets": [

@@ -1,8 +1,9 @@
-import { User, Message } from "./connectors";
+import { User, Message, Social } from "./connectors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
+import fs from "fs";
 
 const resolvers = {
   Query: {
@@ -142,6 +143,81 @@ const resolvers = {
         ctx.user = Promise.resolve(user);
         return user;
       });
+    },
+    loginWithAuth(_, { id_token }, ctx) {
+      /*
+     * verify jwt token then 
+     * if email in user table, then
+     * if social sub found, then 
+     * return user with token
+     *
+     * verify jwt token then
+     * if email in user table, then
+     * if not social sub found, then 
+     * create social, return user with token
+     *
+     * verify jwt token then
+     * if email not in user table, then
+     * create user, create social, return user with token
+     *
+     * verify jwt token failed, reject
+     */
+
+      const jwtVerifyPromise = (id_token, signature) => {
+        return new Promise((resolve, reject) => {
+          return jwt.verify(id_token, signature, (err, dec) => {
+            if (err) reject(err);
+            else resolve(dec);
+          });
+        });
+      };
+
+      return jwtVerifyPromise(id_token, fs.readFileSync("./data/upslack.pem"))
+        .then(decoded => {
+          // check exp token
+          if (new Date() > new Date(decoded.exp * 1000)) {
+            return Promise.reject("your token expired, please login again");
+          }
+
+          // check issuer
+          if (!/https:\/\/upslack.auth0.com\//.test(decoded.iss)) {
+            return Promise.reject("issuer not dikenali");
+          }
+
+          return User.findOne({
+            where: {
+              email: decoded.email
+            }
+          }).then(user => {
+            if (user) {
+              // check social
+              return user
+                .getSocials({ where: { sub: decoded.sub } })
+                .then(social => {
+                  if (!social.length) {
+                    //create social
+                    return Social.create({ sub: decoded.sub }).then(created => {
+                      user.addSocial(created);
+                      const token = jwt.sign(
+                        {
+                          id: user.id,
+                          username: user.username
+                        },
+                        process.env.JWT_SECRET
+                      );
+
+                      user.token = token;
+                      ctx.user = Promise.resolve(user);
+                      return user;
+                    });
+                  }
+                  return Promise.reject("not implemented");
+                });
+            }
+            return Promise.reject("user not found");
+          });
+        })
+        .catch(error => Promise.reject(error));
     }
   },
 
