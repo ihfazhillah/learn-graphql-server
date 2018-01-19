@@ -211,7 +211,17 @@ const resolvers = {
                       return user;
                     });
                   }
-                  return Promise.reject("not implemented");
+                  const token = jwt.sign(
+                    {
+                      id: user.id,
+                      username: user.username
+                    },
+                    process.env.JWT_SECRET
+                  );
+
+                  user.token = token;
+                  ctx.user = Promise.resolve(user);
+                  return user;
                 });
             }
             return Promise.reject("user not found");
