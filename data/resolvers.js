@@ -224,7 +224,25 @@ const resolvers = {
                   return user;
                 });
             }
-            return Promise.reject("user not found");
+            return User.create({
+              username: decoded.nickname,
+              email: decoded.email
+            }).then(user => {
+              return Social.create({ sub: decoded.sub }).then(created => {
+                user.addSocial(created);
+                const token = jwt.sign(
+                  {
+                    id: user.id,
+                    username: user.username
+                  },
+                  process.env.JWT_SECRET
+                );
+
+                user.token = token;
+                ctx.user = Promise.resolve(user);
+                return user;
+              });
+            });
           });
         })
         .catch(error => Promise.reject(error));
