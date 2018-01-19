@@ -226,7 +226,8 @@ const resolvers = {
             }
             return User.create({
               username: decoded.nickname,
-              email: decoded.email
+              email: decoded.email,
+              verified: true
             }).then(user => {
               return Social.create({ sub: decoded.sub }).then(created => {
                 user.addSocial(created);
