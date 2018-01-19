@@ -5,12 +5,55 @@ import gql from "graphql-tag";
 import { graphql } from "react-apollo";
 
 class LoginForm extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      username: "",
+      password: ""
+    };
+
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onUsernameChange = this.onUsernameChange.bind(this);
+    this.onPasswordChange = this.onPasswordChange.bind(this);
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    this.props
+      .login({
+        variables: {
+          username: this.state.username,
+          password: this.state.password
+        }
+      })
+      .then(({ data: { login: { token } } }) => {
+        localStorage.setItem("upslackToken", token);
+        this.props.isAuthenticated();
+      })
+      .catch(error => {
+        debugger;
+      });
+  }
+
+  onUsernameChange(e) {
+    this.setState({ username: e.currentTarget.value });
+  }
+
+  onPasswordChange(e) {
+    this.setState({ password: e.currentTarget.value });
+  }
+
   render() {
     return (
       <div>
-        <form>
-          <input type="text" id="username" />
-          <input type="password" id="password" />
+        <form onSubmit={this.onSubmit}>
+          <input type="text" id="username" onChange={this.onUsernameChange} />
+          <input
+            type="password"
+            id="password"
+            onChange={this.onPasswordChange}
+          />
           <input type="submit" value="login" />
         </form>
         <button id="social">Social Login</button>
@@ -18,6 +61,18 @@ class LoginForm extends Component {
     );
   }
 }
+
+const loginMutation = gql`
+  mutation LoginMtn($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      token
+    }
+  }
+`;
+
+const LoginFormWithMutation = graphql(loginMutation, { name: "login" })(
+  LoginForm
+);
 
 class DataFromGql extends Component {
   render() {
@@ -70,7 +125,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      authenticated: true
+      authenticated: false
     };
 
     this.isAuthenticated = this.isAuthenticated.bind(this);
@@ -106,7 +161,7 @@ class App extends Component {
         {this.state.authenticated ? (
           <button onClick={this.logout}>logout</button>
         ) : (
-          <LoginForm />
+          <LoginFormWithMutation isAuthenticated={this.isAuthenticated} />
         )}
         <OpenData />
         <CloseData />
